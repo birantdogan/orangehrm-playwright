@@ -10,6 +10,7 @@ export class PIMPage {
     readonly successToast: Locator;
     readonly personalDetailsTitle: Locator;
     readonly employeeIdAlreadyExistsMessage: Locator;
+    readonly searchButton: Locator;
 
     constructor(private page: Page) {
         this.pimTitle = page.getByRole('heading', {
@@ -37,6 +38,9 @@ export class PIMPage {
             'Employee Id already exists',
             { exact: true }
         );
+        this.searchButton = page.locator('button').filter({
+            hasText: 'Search',
+        });
     }
     async goToAddEmployee() {
         await this.addButton.click();
@@ -53,5 +57,16 @@ export class PIMPage {
     async saveEmployee() {
         await this.saveButton.click();
     }
+   async searchEmployeeById(employeeId: string) {
+    await this.employeeIdInput.fill(employeeId);
+    await this.searchButton.click();
+
+    return this.page
+        .locator('.oxd-table-row')
+        .filter({
+            has: this.page.getByText(employeeId, { exact: true }),
+        })
+        .getByText(employeeId, { exact: true });
+}
 
 }

@@ -70,4 +70,24 @@ test.describe('PIM Tests', () => {
         await expect(pimPage.employeeIdAlreadyExistsMessage).toBeVisible();
     });
 
+    test('User should be able to search employee by ID @regression', async ({ loginPage, page }) => {
+
+        const dashboardPage = new DashboardPage(page);
+        const pimPage = new PIMPage(page);
+
+        await loginPage.login(
+            users.validUser.username,
+            users.validUser.password
+        );
+
+        await dashboardPage.goToPIM();
+        await expect(pimPage.pimTitle).toBeVisible();
+
+        const employeeId = '0001';
+
+        const employeeResult = await pimPage.searchEmployeeById(employeeId);
+
+        await expect(employeeResult).toHaveText(employeeId);
+
+    });
 });
