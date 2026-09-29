@@ -1,4 +1,4 @@
-import { Page, Locator } from '@playwright/test';
+import { Page, Locator, expect } from '@playwright/test';
 
 export class PIMPage {
     readonly pimTitle: Locator;
@@ -13,6 +13,8 @@ export class PIMPage {
     readonly searchButton: Locator;
     readonly employeeCards: Locator;
     readonly personalDetailsEmployeeIdInput: Locator;
+    readonly deleteConfirmationDialog: Locator;
+    readonly confirmDeleteButton: Locator;
 
     constructor(private page: Page) {
         this.pimTitle = page.getByRole('heading', {
@@ -50,9 +52,19 @@ export class PIMPage {
                 has: page.getByText('Employee Id', { exact: true }),
             })
             .locator('input');
+        this.deleteConfirmationDialog = page.getByRole('document').filter({
+            hasText: 'Are you Sure?',
+        });
+
+        this.confirmDeleteButton = this.deleteConfirmationDialog.getByRole('button', {
+            name: 'Yes, Delete',
+        });
     }
     async goToAddEmployee() {
         await this.addButton.click();
+    }
+    async goToEmployeeList() {
+        await this.page.getByText('Employee List', { exact: true }).click();
     }
     async fillFirstName(firstName: string) {
         await this.firstNameInput.fill(firstName);
@@ -76,6 +88,34 @@ export class PIMPage {
                 has: this.page.getByText(employeeId, { exact: true }),
             })
             .getByText(employeeId, { exact: true });
+    }
+    getEmployeeRowById(employeeId: string) {
+        return this.page
+            .locator('.oxd-table-row')
+            .filter({
+                has: this.page.getByText(employeeId, { exact: true }),
+            });
+    }
+    async deleteEmployee(employeeId: string) {
+        const employeeRow = this.getEmployeeRowById(employeeId);
+
+        await employeeRow
+            .locator('button')
+            .filter({
+                has: this.page.locator('.bi-trash'),
+            })
+            .click();
+
+        await expect(
+            this.deleteConfirmationDialog.getByText('Are you Sure?', {
+                exact: true,
+            })
+        ).toBeVisible();
+
+        await this.confirmDeleteButton.click();
+
+        await expect(this.successToast)
+            .toContainText('Successfully Deleted');
     }
     async getFirstEmployeeId() {
         return this.employeeCards
