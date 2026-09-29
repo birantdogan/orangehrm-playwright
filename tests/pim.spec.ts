@@ -46,6 +46,43 @@ test.describe('PIM Tests', () => {
         //await expect(page).toHaveURL(/pim\/addEmployee/);
     });
 
+    // Delete a newly created employee
+    test('User should be able to delete a newly created employee @regression', async ({ loginPage, page }) => {
+        const dashboardPage = new DashboardPage(page);
+        const pimPage = new PIMPage(page);
+
+        await loginPage.login(
+            users.validUser.username,
+            users.validUser.password
+        );
+
+        await dashboardPage.goToPIM();
+        await expect(pimPage.pimTitle).toBeVisible();
+
+        await pimPage.goToAddEmployee();
+
+        await pimPage.fillFirstName('Delete');
+        await pimPage.fillLastName('Test');
+
+        const employeeId = generateEmployeeId();
+
+        await pimPage.fillEmployeeId(employeeId);
+        await pimPage.saveEmployee();
+
+        await expect(pimPage.successToast).toBeVisible();
+        await expect(pimPage.successToast).toContainText('Successfully Saved');
+        await pimPage.goToEmployeeList();
+        await expect(pimPage.pimTitle).toBeVisible();
+        const employeeRow = pimPage.getEmployeeRowById(employeeId);
+
+        await expect(employeeRow).toBeVisible();
+        await pimPage.deleteEmployee(employeeId);
+
+        await expect(pimPage.successToast).toBeVisible();
+        await expect(pimPage.successToast).toContainText('Successfully Deleted');
+        await expect(pimPage.getEmployeeRowById(employeeId)).toHaveCount(0);
+    });
+
     // Duplicate Employee ID should not be accepted
     test('User should not be able to create employee with duplicate ID @regression', async ({ loginPage, page }) => {
 
