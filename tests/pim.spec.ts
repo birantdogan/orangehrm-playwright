@@ -90,4 +90,26 @@ test.describe('PIM Tests', () => {
         await expect(employeeResult).toHaveText(employeeId);
 
     });
+
+    // Open the first employee details and verify the employee ID
+    test('User should be able to open first employee details and verify employee ID @regression', async ({ loginPage, page }) => {
+
+        const dashboardPage = new DashboardPage(page);
+        const pimPage = new PIMPage(page);
+
+        await loginPage.login(
+            users.validUser.username,
+            users.validUser.password
+        );
+
+        await dashboardPage.goToPIM();
+        await expect(pimPage.pimTitle).toBeVisible();
+
+        const employeeId = await pimPage.getFirstEmployeeId();
+
+        await pimPage.openFirstEmployeeDetails();
+
+        await expect(pimPage.personalDetailsTitle).toBeVisible();
+        await expect(pimPage.personalDetailsEmployeeIdInput).toHaveValue(employeeId);
+    });
 });

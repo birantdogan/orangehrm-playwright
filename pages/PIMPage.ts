@@ -11,6 +11,8 @@ export class PIMPage {
     readonly personalDetailsTitle: Locator;
     readonly employeeIdAlreadyExistsMessage: Locator;
     readonly searchButton: Locator;
+    readonly employeeCards: Locator;
+    readonly personalDetailsEmployeeIdInput: Locator;
 
     constructor(private page: Page) {
         this.pimTitle = page.getByRole('heading', {
@@ -41,6 +43,13 @@ export class PIMPage {
         this.searchButton = page.locator('button').filter({
             hasText: 'Search',
         });
+        this.employeeCards = page.locator('.oxd-table-card');
+        this.personalDetailsEmployeeIdInput = page
+            .locator('.oxd-input-group')
+            .filter({
+                has: page.getByText('Employee Id', { exact: true }),
+            })
+            .locator('input');
     }
     async goToAddEmployee() {
         await this.addButton.click();
@@ -57,16 +66,27 @@ export class PIMPage {
     async saveEmployee() {
         await this.saveButton.click();
     }
-   async searchEmployeeById(employeeId: string) {
-    await this.employeeIdInput.fill(employeeId);
-    await this.searchButton.click();
+    async searchEmployeeById(employeeId: string) {
+        await this.employeeIdInput.fill(employeeId);
+        await this.searchButton.click();
 
-    return this.page
-        .locator('.oxd-table-row')
-        .filter({
-            has: this.page.getByText(employeeId, { exact: true }),
-        })
-        .getByText(employeeId, { exact: true });
-}
-
+        return this.page
+            .locator('.oxd-table-row')
+            .filter({
+                has: this.page.getByText(employeeId, { exact: true }),
+            })
+            .getByText(employeeId, { exact: true });
+    }
+    async getFirstEmployeeId() {
+        return this.employeeCards
+            .nth(0)
+            .getByRole('cell')
+            .nth(1)
+            .innerText();
+    }
+    async openFirstEmployeeDetails() {
+        await this.employeeCards
+            .nth(0)
+            .click();
+    }
 }
