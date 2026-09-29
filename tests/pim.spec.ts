@@ -60,12 +60,14 @@ test.describe('PIM Tests', () => {
         await dashboardPage.goToPIM();
         await expect(pimPage.pimTitle).toBeVisible();
 
+        const employeeId = await pimPage.getFirstEmployeeId();
+
         await pimPage.goToAddEmployee();
 
         await pimPage.fillFirstName('Jane');
         await pimPage.fillLastName('Doe');
 
-        await pimPage.fillEmployeeId('0001');
+        await pimPage.fillEmployeeId(employeeId);
 
         await expect(pimPage.employeeIdAlreadyExistsMessage).toBeVisible();
     });
@@ -83,7 +85,7 @@ test.describe('PIM Tests', () => {
         await dashboardPage.goToPIM();
         await expect(pimPage.pimTitle).toBeVisible();
 
-        const employeeId = '0001';
+        const employeeId = await pimPage.getFirstEmployeeId();
 
         const employeeResult = await pimPage.searchEmployeeById(employeeId);
 

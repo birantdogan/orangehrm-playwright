@@ -21,7 +21,7 @@ export class LoginPage {
       name: 'Login',
     });
     this.userDropdown = page.locator('.oxd-userdropdown-tab');
-    this.invalidCredentialsMessage = page.getByText('Invalid credentials');
+    this.invalidCredentialsMessage = page.getByRole('alert').getByText('Invalid credentials');
     this.usernameRequiredMessage = page
       .locator('.oxd-input-group')
       .filter({
