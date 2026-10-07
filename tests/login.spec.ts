@@ -1,6 +1,6 @@
 import { test, expect } from '../fixtures/login.fixture';
 import { DashboardPage } from '../pages/DashboardPage';
-import { users } from '../test-data/users';
+import { users, invalidLoginUsers, emptyFieldUsers } from '../test-data/users';
 
 test.describe('Login and Logout Tests', () => {
   //test.describe.configure({ mode: 'serial' });
@@ -19,17 +19,18 @@ test.describe('Login and Logout Tests', () => {
     await expect(dashboardPage.quickLaunchTitle).toBeVisible();
   });
 
-  // Login fails with invalid credentials
-  test('User should not be able to login with invalid credentials @regression', async ({ loginPage, page }) => {
-    await loginPage.login(
-      users.invalidUser.username,
-      users.invalidUser.password
-    );
+  for (const user of invalidLoginUsers) {
+    test(`User should not be able to login with invalid credentials: ${user.username} @regression`, async ({ loginPage }) => {
+      await loginPage.login(
+        user.username,
+        user.password
+      );
 
-    await expect(loginPage.invalidCredentialsMessage).toBeVisible({
-      timeout: 15000,
+      await expect(loginPage.invalidCredentialsMessage).toBeVisible({
+        timeout: 15000,
+      });
     });
-  });
+  }
 
   // Log out successfully
   test('User should be able to logout successfully @regression', async ({ loginPage, page }) => {
@@ -52,6 +53,31 @@ test.describe('Login and Logout Tests', () => {
 
     await expect(loginPage.usernameRequiredMessage).toBeVisible();
     await expect(loginPage.passwordRequiredMessage).toBeVisible();
+  });
+
+  for (const user of emptyFieldUsers) {
+    test(`User should not be able to login with empty ${user.expectedField} @regression`, async ({ loginPage }) => {
+      await loginPage.login(
+        user.username,
+        user.password
+      );
+
+      if (user.expectedField === 'username') {
+        await expect(loginPage.usernameRequiredMessage).toBeVisible();
+      } else {
+        await expect(loginPage.passwordRequiredMessage).toBeVisible();
+      }
+    });
+  }
+
+  // Login fails with valid username and invalid password
+  test('User should not be able to login with valid username and invalid password @regression', async ({ loginPage }) => {
+    await loginPage.login(
+      users.validUser.username,
+      users.invalidUser.password
+    );
+
+    await expect(loginPage.invalidCredentialsMessage).toBeVisible();
   });
 
 });
