@@ -206,4 +206,28 @@ test.describe('PIM Tests', () => {
         await expect(employeeRow).toBeVisible();
         await expect(employeeRow).toContainText('Edited');
     });
+
+    // Verify employee details after searching by ID
+    test('User should be able to verify employee details after search @regression', async ({ loginPage, page }) => {
+        const dashboardPage = new DashboardPage(page);
+        const pimPage = new PIMPage(page);
+
+        await loginPage.login(
+            users.validUser.username,
+            users.validUser.password
+        );
+
+        await dashboardPage.goToPIM();
+        await expect(pimPage.pimTitle).toBeVisible();
+
+        const employeeDetails = await pimPage.getFirstEmployeeDetails();
+
+        await pimPage.searchEmployeeById(employeeDetails.employeeId);
+
+        const employeeRow = pimPage.getEmployeeRowById(employeeDetails.employeeId);
+
+        await expect(employeeRow).toBeVisible();
+        await expect(employeeRow).toContainText(employeeDetails.firstName);
+        await expect(employeeRow).toContainText(employeeDetails.lastName);
+    });
 });

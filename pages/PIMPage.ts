@@ -127,6 +127,15 @@ export class PIMPage {
             .nth(1)
             .innerText();
     }
+    async getFirstEmployeeDetails() {
+        const employeeCard = this.employeeCards.nth(0);
+
+        return {
+            employeeId: await employeeCard.getByRole('cell').nth(1).innerText(),
+            firstName: await employeeCard.getByRole('cell').nth(2).innerText(),
+            lastName: await employeeCard.getByRole('cell').nth(3).innerText(),
+        };
+    }
     async openFirstEmployeeDetails() {
         await this.employeeCards
             .nth(0)
