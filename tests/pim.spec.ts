@@ -151,4 +151,59 @@ test.describe('PIM Tests', () => {
         await expect(pimPage.personalDetailsTitle).toBeVisible();
         await expect(pimPage.personalDetailsEmployeeIdInput).toHaveValue(employeeId);
     });
+
+    // Edit an employee's first name
+    test('User should be able to edit an employee @regression', async ({ loginPage, page }) => {
+        await loginPage.login(
+            users.validUser.username,
+            users.validUser.password
+        );
+
+        const dashboardPage = new DashboardPage(page);
+        const pimPage = new PIMPage(page);
+
+        await dashboardPage.goToPIM();
+        await expect(pimPage.pimTitle).toBeVisible();
+
+        await pimPage.goToAddEmployee();
+        await pimPage.fillFirstName('Edit');
+        await pimPage.fillLastName('Test');
+
+        const employeeId = generateEmployeeId();
+
+        await pimPage.fillEmployeeId(employeeId);
+        await pimPage.saveEmployee();
+
+        await expect(pimPage.successToast).toBeVisible();
+        await expect(pimPage.successToast).toContainText('Successfully Saved');
+        await pimPage.goToEmployeeList();
+        await expect(pimPage.pimTitle).toBeVisible();
+
+        await pimPage.searchEmployeeById(employeeId);
+
+
+        const employeeRow = pimPage.getEmployeeRowById(employeeId);
+        await expect(employeeRow).toBeVisible();
+
+        await employeeRow.click();
+
+        await expect(pimPage.personalDetailsTitle).toBeVisible();
+        await pimPage.firstNameInput.click();
+        await pimPage.firstNameInput.press('Control+A');
+        await pimPage.firstNameInput.type('Edited');
+
+        await expect(pimPage.firstNameInput).toHaveValue('Edited');
+
+        await pimPage.saveEmployee();
+        await expect(pimPage.successToast).toBeVisible();
+        await expect(pimPage.successToast).toContainText('Successfully Updated');
+
+        await pimPage.goToEmployeeList();
+        await expect(pimPage.pimTitle).toBeVisible();
+
+        await pimPage.searchEmployeeById(employeeId);
+
+        await expect(employeeRow).toBeVisible();
+        await expect(employeeRow).toContainText('Edited');
+    });
 });

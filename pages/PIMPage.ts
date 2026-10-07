@@ -31,9 +31,12 @@ export class PIMPage {
                 has: page.getByText('Employee Id', { exact: true }),
             })
             .locator('input');
-        this.saveButton = page.locator('button').filter({
-            hasText: 'Save',
-        });
+        this.saveButton = page
+            .locator('form')
+            .filter({
+                has: page.getByPlaceholder('First Name'),
+            })
+            .getByRole('button', { name: 'Save' });
         this.successToast = page.locator('.oxd-toast--success');
         this.personalDetailsTitle = page.getByRole('heading', {
             name: 'Personal Details',
