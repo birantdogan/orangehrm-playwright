@@ -1,7 +1,9 @@
+import 'dotenv/config';
+
 export const users = {
   validUser: {
-    username: 'Admin',
-    password: 'admin123',
+    username: process.env.ORANGEHRM_USERNAME!,
+    password: process.env.ORANGEHRM_PASSWORD!,
   },
 
   invalidUser: {
@@ -12,7 +14,7 @@ export const users = {
   emptyUser: {
     username: '',
     password: '',
-  }
+  },
 };
 
 export const invalidLoginUsers = [
@@ -21,7 +23,7 @@ export const invalidLoginUsers = [
     password: 'InvalidPassword',
   },
   {
-    username: 'Admin',
+    username: process.env.ORANGEHRM_USERNAME!,
     password: 'InvalidPassword',
   },
 ];
@@ -29,11 +31,11 @@ export const invalidLoginUsers = [
 export const emptyFieldUsers = [
   {
     username: '',
-    password: 'admin123',
+    password: process.env.ORANGEHRM_PASSWORD!,
     expectedField: 'username',
   },
   {
-    username: 'Admin',
+    username: process.env.ORANGEHRM_USERNAME!,
     password: '',
     expectedField: 'password',
   },
