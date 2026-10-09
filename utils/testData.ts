@@ -3,3 +3,6 @@ export function generateEmployeeId() {
 
     return `EMP${randomNumber}`;
 }
+export function generateUsername() {
+    return `testuser${Date.now()}`;
+}

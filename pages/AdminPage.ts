@@ -1,4 +1,4 @@
-import { Page, Locator } from '@playwright/test';
+import { Page, Locator, expect } from '@playwright/test';
 
 export class AdminPage {
     readonly adminTitle: Locator;
@@ -104,7 +104,17 @@ export class AdminPage {
             exact: true,
         });
     }
+    async selectEmployee(searchText: string) {
+        await this.addEmployeeNameInput.fill(searchText);
 
+        const options = this.page.locator('.oxd-autocomplete-option');
+
+        await expect(options.first()).toBeVisible();
+
+        await expect(options.first()).not.toHaveText('Searching....');
+
+        await options.first().click();
+    }
     async goToUsers() {
         await this.page
             .getByRole('navigation', { name: 'Topbar Menu' })
