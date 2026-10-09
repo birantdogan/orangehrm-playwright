@@ -1,6 +1,7 @@
 import { test, expect } from '../fixtures/login.fixture';
 import { AdminPage } from '../pages/AdminPage';
 import { users } from '../test-data/users';
+import { generateUsername } from '../utils/testData';
 
 test.describe('Admin Tests', () => {
     test('Admin user list should be displayed @smoke', async ({ loginPage, page }) => {
@@ -126,5 +127,40 @@ test.describe('Admin Tests', () => {
         await adminPage.addButton.click();
 
         await expect(adminPage.addUserTitle).toBeVisible();
+    });
+
+    test('Admin should be able to create a new user @regression', async ({ loginPage, page }) => {
+        const adminPage = new AdminPage(page);
+        const username = generateUsername();
+        const password = 'Test@12345';
+
+        await loginPage.login(
+            users.validUser.username,
+            users.validUser.password
+        );
+
+        await page.getByRole('link', { name: 'Admin' }).click();
+        await adminPage.goToUsers();
+        await adminPage.addButton.click();
+
+        await expect(adminPage.addUserTitle).toBeVisible();
+
+        await adminPage.addUserRoleSelect.click();
+        await page.getByRole('option', { name: 'ESS', exact: true }).click();
+
+        await adminPage.selectEmployee('a');
+
+        await adminPage.addStatusSelect.click();
+        await page.getByRole('option', { name: 'Enabled', exact: true }).click();
+
+        await adminPage.addUsernameInput.fill(username);
+        await adminPage.addPasswordInput.fill(password);
+        await adminPage.addConfirmPasswordInput.fill(password);
+
+        await adminPage.saveButton.click();
+
+        await expect(
+            page.getByText('Successfully Saved', { exact: true })
+        ).toBeVisible();
     });
 });
