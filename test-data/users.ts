@@ -40,3 +40,7 @@ export const emptyFieldUsers = [
     expectedField: 'password',
   },
 ];
+
+export const duplicateUserTestData = {
+  username: 'Admin',
+};
