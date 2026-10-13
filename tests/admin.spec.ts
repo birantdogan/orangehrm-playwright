@@ -197,4 +197,74 @@ test.describe('Admin Tests', () => {
             page.getByText('Already exists', { exact: false })
         ).toBeVisible();
     });
+
+    test('Admin should be able to edit a user @regression', async ({ page, loginPage }) => {
+        const adminPage = new AdminPage(page);
+
+        await loginPage.login(users.validUser.username, users.validUser.password);
+
+        await page.getByRole('link', { name: 'Admin' }).click();
+        await adminPage.goToUsers();
+
+        // Create a new user
+        const username = generateUsername();
+        const password = 'Test@12345';
+
+        await adminPage.addButton.click();
+
+        await adminPage.addUserRoleSelect.click();
+        await page.getByRole('option', { name: 'ESS' }).click();
+
+        await adminPage.selectEmployee('a');
+
+        await adminPage.addStatusSelect.click();
+        await page.getByRole('option', { name: 'Enabled' }).click();
+
+        await adminPage.addUsernameInput.fill(username);
+        await adminPage.addPasswordInput.fill(password);
+        await adminPage.addConfirmPasswordInput.fill(password);
+
+        await adminPage.saveButton.click();
+
+        await expect(page.getByText('Successfully Saved')).toBeVisible();
+        await expect(adminPage.adminTitle).toBeVisible();
+
+        // Find the newly created user
+        await adminPage.usernameInput.fill(username);
+        await adminPage.searchButton.click();
+
+        const userRow = adminPage.userRows.filter({
+            hasText: username,
+        });
+
+        await expect(userRow).toBeVisible();
+
+        // Open the Edit User page
+        await userRow.locator('.oxd-icon.bi-pencil-fill').click();
+
+        await expect(adminPage.editUserTitle).toBeVisible();
+
+        // Update the username
+        // Update the user's status
+        await adminPage.statusSelect.click();
+        await page.getByRole('option', { name: 'Disabled', exact: true }).click();
+
+        await adminPage.saveButton.click();
+
+        await expect(
+            page.getByText('Successfully Updated', { exact: true })
+        ).toBeVisible();
+
+        // Verify the updated user in the list
+        await adminPage.goToUsers();
+        await adminPage.usernameInput.fill(username);
+        await adminPage.searchButton.click();
+
+        const updatedUserRow = adminPage.userRows.filter({
+            hasText: username,
+        });
+
+        await expect(updatedUserRow).toBeVisible();
+        await expect(updatedUserRow).toContainText('Disabled');;
+    });
 });

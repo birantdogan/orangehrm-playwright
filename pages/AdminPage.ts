@@ -18,6 +18,8 @@ export class AdminPage {
     readonly addPasswordInput: Locator;
     readonly addConfirmPasswordInput: Locator;
     readonly saveButton: Locator;
+    readonly editUserTitle: Locator;
+    readonly editUsernameInput: Locator;
 
     constructor(private page: Page) {
         this.adminTitle = page.getByRole('heading', {
@@ -103,6 +105,17 @@ export class AdminPage {
             name: 'Save',
             exact: true,
         });
+
+        this.editUserTitle = page.getByRole('heading', {
+            name: 'Edit User',
+        });
+
+        this.editUsernameInput = page
+            .locator('.oxd-input-group')
+            .filter({
+                has: page.getByText('Username', { exact: true }),
+            })
+            .locator('input');
     }
     async selectEmployee(searchText: string) {
         await this.addEmployeeNameInput.fill(searchText);
