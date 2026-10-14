@@ -267,4 +267,71 @@ test.describe('Admin Tests', () => {
         await expect(updatedUserRow).toBeVisible();
         await expect(updatedUserRow).toContainText('Disabled');;
     });
+
+    test('Admin should be able to delete a user @regression', async ({ page, loginPage }) => {
+        const adminPage = new AdminPage(page);
+
+        await loginPage.login(users.validUser.username, users.validUser.password);
+
+        await page.getByRole('link', { name: 'Admin' }).click();
+        await adminPage.goToUsers();
+
+        // Create a new user
+        const username = generateUsername();
+        const password = 'Test@12345';
+
+        await adminPage.addButton.click();
+
+        await adminPage.addUserRoleSelect.click();
+        await page.getByRole('option', { name: 'ESS' }).click();
+
+        await adminPage.selectEmployee('a');
+
+        await adminPage.addStatusSelect.click();
+        await page.getByRole('option', { name: 'Enabled' }).click();
+
+        await adminPage.addUsernameInput.fill(username);
+        await adminPage.addPasswordInput.fill(password);
+        await adminPage.addConfirmPasswordInput.fill(password);
+
+        await adminPage.saveButton.click();
+
+        await expect(page.getByText('Successfully Saved')).toBeVisible();
+        await expect(adminPage.adminTitle).toBeVisible();
+
+        // Find the newly created user
+        await adminPage.usernameInput.fill(username);
+        await adminPage.searchButton.click();
+
+        const userRow = adminPage.userRows.filter({
+            hasText: username,
+        });
+
+        await expect(userRow).toBeVisible();
+
+        // Click the delete button
+        await userRow.locator('.oxd-icon.bi-trash').click();
+
+        // Confirm user deletion
+        const deleteDialog = page.getByRole('dialog');
+
+        await expect(deleteDialog).toBeVisible();
+
+        await deleteDialog
+            .getByRole('button', { name: 'Yes, Delete' })
+            .click();
+
+        await expect(
+            page.getByText('Successfully Deleted')
+        ).toBeVisible();
+
+        // Verify the deleted user is no longer in the list
+        await adminPage.usernameInput.fill(username);
+        await adminPage.searchButton.click();
+
+        await expect(
+            page.getByText('No Records Found', { exact: true }).first()
+        ).toBeVisible();
+    });
+
 });
