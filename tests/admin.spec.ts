@@ -244,7 +244,6 @@ test.describe('Admin Tests', () => {
 
         await expect(adminPage.editUserTitle).toBeVisible();
 
-        // Update the username
         // Update the user's status
         await adminPage.statusSelect.click();
         await page.getByRole('option', { name: 'Disabled', exact: true }).click();
@@ -265,7 +264,7 @@ test.describe('Admin Tests', () => {
         });
 
         await expect(updatedUserRow).toBeVisible();
-        await expect(updatedUserRow).toContainText('Disabled');;
+        await expect(updatedUserRow).toContainText('Disabled');
     });
 
     test('Admin should be able to delete a user @regression', async ({ page, loginPage }) => {
