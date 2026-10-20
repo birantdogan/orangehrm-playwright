@@ -121,20 +121,52 @@ export class PIMPage {
             .toContainText('Successfully Deleted');
     }
     async getFirstEmployeeId() {
-        return this.employeeCards
-            .nth(0)
-            .getByRole('cell')
-            .nth(1)
-            .innerText();
+        await expect(this.employeeCards.first()).toBeVisible();
+
+        const employeeCount = await this.employeeCards.count();
+
+        for (let i = 0; i < employeeCount; i++) {
+            const employeeId = (
+                await this.employeeCards
+                    .nth(i)
+                    .getByRole('cell')
+                    .nth(1)
+                    .innerText()
+            ).trim();
+
+            if (employeeId) {
+                return employeeId;
+            }
+        }
+
+        throw new Error('No employee with a valid Employee ID was found');
     }
     async getFirstEmployeeDetails() {
-        const employeeCard = this.employeeCards.nth(0);
+        await expect(this.employeeCards.first()).toBeVisible();
 
-        return {
-            employeeId: await employeeCard.getByRole('cell').nth(1).innerText(),
-            firstName: await employeeCard.getByRole('cell').nth(2).innerText(),
-            lastName: await employeeCard.getByRole('cell').nth(3).innerText(),
-        };
+        const employeeCount = await this.employeeCards.count();
+
+        for (let i = 0; i < employeeCount; i++) {
+            const employeeCard = this.employeeCards.nth(i);
+
+            const employeeId = (
+                await employeeCard.getByRole('cell').nth(1).innerText()
+            ).trim();
+
+            if (employeeId) {
+                return {
+                    employeeId,
+                    firstName: (
+                        await employeeCard.getByRole('cell').nth(2).innerText()
+                    ).trim(),
+                    lastName: (
+                        await employeeCard.getByRole('cell').nth(3).innerText()
+                    ).trim(),
+                };
+            }
+        }
+
+        throw new Error('No employee with a valid Employee ID was found');
     }
     async openFirstEmployeeDetails() {
         await this.employeeCards

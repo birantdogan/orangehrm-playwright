@@ -61,7 +61,15 @@ test.describe('Leave Tests', () => {
         ).toBeVisible();
 
         await expect(
-            page.getByText('No Leave Types with Leave Balance', { exact: true })
+            page.getByText('Leave Type', { exact: true })
+        ).toBeVisible();
+
+        await expect(
+            page.getByText('Leave Balance', { exact: true })
+        ).toBeVisible();
+
+        await expect(
+            page.getByText(/^\d+(?:\.\d+)? Day\(s\)$/)
         ).toBeVisible();
     });
 });
