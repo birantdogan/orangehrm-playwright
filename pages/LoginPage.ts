@@ -34,6 +34,7 @@ export class LoginPage {
       .filter({
         has: page.getByPlaceholder('Password'),
       })
+      .getByText('Required');
   }
 
   async login(username: string, password: string) {

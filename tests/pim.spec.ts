@@ -22,15 +22,15 @@ test.describe('PIM Tests', () => {
 
         await pimPage.goToAddEmployee();
 
-        await pimPage.fillFirstName('John');
+        await pimPage.fillField(pimPage.firstNameInput, 'John');
         await expect(pimPage.firstNameInput).toHaveValue('John');
 
-        await pimPage.fillLastName('Doe');
+        await pimPage.fillField(pimPage.lastNameInput, 'Doe');
         await expect(pimPage.lastNameInput).toHaveValue('Doe');
 
         const employeeId = generateEmployeeId();
 
-        await pimPage.fillEmployeeId(employeeId);
+        await pimPage.fillField(pimPage.employeeIdInput, employeeId);
         await expect(pimPage.employeeIdInput).toHaveValue(employeeId);
 
         await pimPage.saveEmployee();
@@ -61,12 +61,12 @@ test.describe('PIM Tests', () => {
 
         await pimPage.goToAddEmployee();
 
-        await pimPage.fillFirstName('Delete');
-        await pimPage.fillLastName('Test');
+        await pimPage.fillField(pimPage.firstNameInput, 'Delete');
+        await pimPage.fillField(pimPage.lastNameInput, 'Test');
 
         const employeeId = generateEmployeeId();
 
-        await pimPage.fillEmployeeId(employeeId);
+        await pimPage.fillField(pimPage.employeeIdInput, employeeId);
         await pimPage.saveEmployee();
 
         await expect(pimPage.successToast).toBeVisible();
@@ -101,10 +101,10 @@ test.describe('PIM Tests', () => {
 
         await pimPage.goToAddEmployee();
 
-        await pimPage.fillFirstName('Jane');
-        await pimPage.fillLastName('Doe');
+        await pimPage.fillField(pimPage.firstNameInput, 'Jane');
+        await pimPage.fillField(pimPage.lastNameInput, 'Doe');
 
-        await pimPage.fillEmployeeId(employeeId);
+        await pimPage.fillField(pimPage.employeeIdInput, employeeId);
 
         await expect(pimPage.employeeIdAlreadyExistsMessage).toBeVisible();
     });
@@ -146,10 +146,10 @@ test.describe('PIM Tests', () => {
 
         const employeeId = await pimPage.getFirstEmployeeId();
 
-        await pimPage.openFirstEmployeeDetails();
+        await pimPage.openFirstEmployeeDetails(employeeId);
 
         await expect(pimPage.personalDetailsTitle).toBeVisible();
-        await expect(pimPage.personalDetailsEmployeeIdInput).toHaveValue(employeeId);
+        await expect(pimPage.employeeIdInput).toHaveValue(employeeId);
     });
 
     // Edit an employee's first name
@@ -166,12 +166,12 @@ test.describe('PIM Tests', () => {
         await expect(pimPage.pimTitle).toBeVisible();
 
         await pimPage.goToAddEmployee();
-        await pimPage.fillFirstName('Edit');
-        await pimPage.fillLastName('Test');
+        await pimPage.fillField(pimPage.firstNameInput, 'Edit');
+        await pimPage.fillField(pimPage.lastNameInput, 'Test');
 
         const employeeId = generateEmployeeId();
 
-        await pimPage.fillEmployeeId(employeeId);
+        await pimPage.fillField(pimPage.employeeIdInput, employeeId);
         await pimPage.saveEmployee();
 
         await expect(pimPage.successToast).toBeVisible();

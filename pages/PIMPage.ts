@@ -12,7 +12,6 @@ export class PIMPage {
     readonly employeeIdAlreadyExistsMessage: Locator;
     readonly searchButton: Locator;
     readonly employeeCards: Locator;
-    readonly personalDetailsEmployeeIdInput: Locator;
     readonly deleteConfirmationDialog: Locator;
     readonly confirmDeleteButton: Locator;
 
@@ -49,12 +48,6 @@ export class PIMPage {
             hasText: 'Search',
         });
         this.employeeCards = page.locator('.oxd-table-card');
-        this.personalDetailsEmployeeIdInput = page
-            .locator('.oxd-input-group')
-            .filter({
-                has: page.getByText('Employee Id', { exact: true }),
-            })
-            .locator('input');
         this.deleteConfirmationDialog = page.getByRole('document').filter({
             hasText: 'Are you Sure?',
         });
@@ -69,14 +62,8 @@ export class PIMPage {
     async goToEmployeeList() {
         await this.page.getByText('Employee List', { exact: true }).click();
     }
-    async fillFirstName(firstName: string) {
-        await this.firstNameInput.fill(firstName);
-    }
-    async fillLastName(lastName: string) {
-        await this.lastNameInput.fill(lastName);
-    }
-    async fillEmployeeId(employeeId: string) {
-        await this.employeeIdInput.fill(employeeId);
+    async fillField(field: Locator, value: string) {
+        await field.fill(value);
     }
     async saveEmployee() {
         await this.saveButton.click();
@@ -168,9 +155,10 @@ export class PIMPage {
 
         throw new Error('No employee with a valid Employee ID was found');
     }
-    async openFirstEmployeeDetails() {
-        await this.employeeCards
-            .nth(0)
-            .click();
+    async openFirstEmployeeDetails(employeeId: string) {
+        const employeeRow = this.getEmployeeRowById(employeeId);
+
+        await expect(employeeRow).toBeVisible();
+        await employeeRow.click();
     }
 }
