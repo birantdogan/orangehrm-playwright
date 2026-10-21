@@ -162,24 +162,22 @@ test.describe('Admin Tests', () => {
 
         await page.getByRole('link', { name: 'Admin' }).click();
         await adminPage.goToUsers();
+
+        // Open Add User form
         await adminPage.addButton.click();
 
         await expect(adminPage.addUserTitle).toBeVisible();
 
-        await adminPage.addUserRoleSelect.click();
-        await page.getByRole('option', { name: 'ESS', exact: true }).click();
+        // Fill the form with an existing username
+        await adminPage.fillUserForm(
+            duplicateUserTestData.username,
+            password
+        );
 
-        await adminPage.selectEmployee('a');
-
-        await adminPage.addStatusSelect.click();
-        await page.getByRole('option', { name: 'Enabled', exact: true }).click();
-
-        await adminPage.addUsernameInput.fill(duplicateUserTestData.username);
-        await adminPage.addPasswordInput.fill(password);
-        await adminPage.addConfirmPasswordInput.fill(password);
-
+        // Attempt to create a user
         await adminPage.saveButton.click();
 
+        // Verify duplicate username validation
         await expect(
             page.getByText('Already exists', { exact: false })
         ).toBeVisible();

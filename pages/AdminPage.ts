@@ -128,9 +128,7 @@ export class AdminPage {
 
         await options.first().click();
     }
-    async createUser(username: string, password: string) {
-        await this.addButton.click();
-
+    async fillUserForm(username: string, password: string) {
         await this.addUserRoleSelect.click();
         await this.page.getByRole('option', {
             name: 'ESS',
@@ -148,6 +146,11 @@ export class AdminPage {
         await this.addUsernameInput.fill(username);
         await this.addPasswordInput.fill(password);
         await this.addConfirmPasswordInput.fill(password);
+    }
+    async createUser(username: string, password: string) {
+        await this.addButton.click();
+
+        await this.fillUserForm(username, password);
 
         await this.saveButton.click();
     }
