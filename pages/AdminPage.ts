@@ -128,6 +128,29 @@ export class AdminPage {
 
         await options.first().click();
     }
+    async createUser(username: string, password: string) {
+        await this.addButton.click();
+
+        await this.addUserRoleSelect.click();
+        await this.page.getByRole('option', {
+            name: 'ESS',
+            exact: true,
+        }).click();
+
+        await this.selectEmployee('a');
+
+        await this.addStatusSelect.click();
+        await this.page.getByRole('option', {
+            name: 'Enabled',
+            exact: true,
+        }).click();
+
+        await this.addUsernameInput.fill(username);
+        await this.addPasswordInput.fill(password);
+        await this.addConfirmPasswordInput.fill(password);
+
+        await this.saveButton.click();
+    }
     async goToUsers() {
         await this.page
             .getByRole('navigation', { name: 'Topbar Menu' })

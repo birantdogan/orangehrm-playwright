@@ -141,24 +141,11 @@ test.describe('Admin Tests', () => {
 
         await page.getByRole('link', { name: 'Admin' }).click();
         await adminPage.goToUsers();
-        await adminPage.addButton.click();
 
-        await expect(adminPage.addUserTitle).toBeVisible();
+        // Create a new user
+        await adminPage.createUser(username, password);
 
-        await adminPage.addUserRoleSelect.click();
-        await page.getByRole('option', { name: 'ESS', exact: true }).click();
-
-        await adminPage.selectEmployee('a');
-
-        await adminPage.addStatusSelect.click();
-        await page.getByRole('option', { name: 'Enabled', exact: true }).click();
-
-        await adminPage.addUsernameInput.fill(username);
-        await adminPage.addPasswordInput.fill(password);
-        await adminPage.addConfirmPasswordInput.fill(password);
-
-        await adminPage.saveButton.click();
-
+        // Verify user creation
         await expect(
             page.getByText('Successfully Saved', { exact: true })
         ).toBeVisible();
@@ -210,21 +197,7 @@ test.describe('Admin Tests', () => {
         const username = generateUsername();
         const password = 'Test@12345';
 
-        await adminPage.addButton.click();
-
-        await adminPage.addUserRoleSelect.click();
-        await page.getByRole('option', { name: 'ESS' }).click();
-
-        await adminPage.selectEmployee('a');
-
-        await adminPage.addStatusSelect.click();
-        await page.getByRole('option', { name: 'Enabled' }).click();
-
-        await adminPage.addUsernameInput.fill(username);
-        await adminPage.addPasswordInput.fill(password);
-        await adminPage.addConfirmPasswordInput.fill(password);
-
-        await adminPage.saveButton.click();
+        await adminPage.createUser(username, password);
 
         await expect(page.getByText('Successfully Saved')).toBeVisible();
         await expect(adminPage.adminTitle).toBeVisible();
@@ -280,27 +253,14 @@ test.describe('Admin Tests', () => {
         const username = generateUsername();
         const password = 'Test@12345';
 
-        await adminPage.addButton.click();
-
-        await adminPage.addUserRoleSelect.click();
-        await page.getByRole('option', { name: 'ESS' }).click();
-
-        await adminPage.selectEmployee('a');
-
-        await adminPage.addStatusSelect.click();
-        await page.getByRole('option', { name: 'Enabled' }).click();
-
-        await adminPage.addUsernameInput.fill(username);
-        await adminPage.addPasswordInput.fill(password);
-        await adminPage.addConfirmPasswordInput.fill(password);
-
-        await adminPage.saveButton.click();
+        await adminPage.createUser(username, password);
 
         await expect(page.getByText('Successfully Saved')).toBeVisible();
         await expect(adminPage.adminTitle).toBeVisible();
 
         // Find the newly created user
         await adminPage.usernameInput.fill(username);
+        await expect(adminPage.usernameInput).toHaveValue(username);
         await adminPage.searchButton.click();
 
         const userRow = adminPage.userRows.filter({
@@ -327,6 +287,7 @@ test.describe('Admin Tests', () => {
 
         // Verify the deleted user is no longer in the list
         await adminPage.usernameInput.fill(username);
+        await expect(adminPage.usernameInput).toHaveValue(username);
         await adminPage.searchButton.click();
 
         await expect(
