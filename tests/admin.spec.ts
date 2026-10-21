@@ -142,15 +142,23 @@ test.describe('Admin Tests', () => {
         await page.getByRole('link', { name: 'Admin' }).click();
         await adminPage.goToUsers();
 
-        // Create a new user
-        await adminPage.createUser(username, password);
+        let userCreated = false;
 
-        // Verify user creation
-        await expect(
-            page.getByText('Successfully Saved', { exact: true })
-        ).toBeVisible();
+        try {
+            // Create a new user
+            await adminPage.createUser(username, password);
+            userCreated = true;
+
+            // Verify user creation
+            await expect(
+                page.getByText('Successfully Saved', { exact: true })
+            ).toBeVisible();
+        } finally {
+            if (userCreated) {
+                await adminPage.deleteUser(username);
+            }
+        }
     });
-
     test('Admin should not be able to create a user with duplicate username @regression', async ({ loginPage, page }) => {
         const adminPage = new AdminPage(page);
         const password = 'Test@12345';
@@ -183,6 +191,7 @@ test.describe('Admin Tests', () => {
         ).toBeVisible();
     });
 
+
     test('Admin should be able to edit a user @regression', async ({ page, loginPage }) => {
         const adminPage = new AdminPage(page);
 
@@ -194,49 +203,63 @@ test.describe('Admin Tests', () => {
         // Create a new user
         const username = generateUsername();
         const password = 'Test@12345';
+        let userCreated = false;
 
-        await adminPage.createUser(username, password);
+        try {
+            await adminPage.createUser(username, password);
+            userCreated = true;
 
-        await expect(page.getByText('Successfully Saved')).toBeVisible();
-        await expect(adminPage.adminTitle).toBeVisible();
+            await expect(page.getByText('Successfully Saved')).toBeVisible();
+            await expect(adminPage.adminTitle).toBeVisible();
 
-        // Find the newly created user
-        await adminPage.usernameInput.fill(username);
-        await expect(adminPage.usernameInput).toHaveValue(username);
-        await adminPage.searchButton.click();
+            // Find the newly created user
+            await adminPage.usernameInput.fill(username);
+            await expect(adminPage.usernameInput).toHaveValue(username);
+            await adminPage.searchButton.click();
 
-        const userRow = adminPage.userRows.filter({
-            hasText: username,
-        });
+            const userRow = adminPage.userRows.filter({
+                hasText: username,
+            });
 
-        await expect(userRow).toBeVisible();
+            await expect(userRow).toBeVisible();
 
-        // Open the Edit User page
-        await userRow.locator('.oxd-icon.bi-pencil-fill').click();
+            // Open the Edit User page
+            await userRow.locator('.oxd-icon.bi-pencil-fill').click();
 
-        await expect(adminPage.editUserTitle).toBeVisible();
+            await expect(adminPage.editUserTitle).toBeVisible();
 
-        // Update the user's status
-        await adminPage.statusSelect.click();
-        await page.getByRole('option', { name: 'Disabled', exact: true }).click();
+            // Update the user's status
+            await adminPage.statusSelect.click();
+            await page.getByRole('option', {
+                name: 'Disabled',
+                exact: true,
+            }).click();
 
-        await adminPage.saveButton.click();
+            await adminPage.saveButton.click();
 
-        await expect(
-            page.getByText('Successfully Updated', { exact: true })
-        ).toBeVisible();
+            await expect(
+                page.getByText('Successfully Updated', { exact: true })
+            ).toBeVisible();
 
-        // Verify the updated user in the list
-        await adminPage.goToUsers();
-        await adminPage.usernameInput.fill(username);
-        await adminPage.searchButton.click();
+            // Verify the updated user in the list
+            await adminPage.goToUsers();
+            await adminPage.usernameInput.fill(username);
+            await adminPage.searchButton.click();
 
-        const updatedUserRow = adminPage.userRows.filter({
-            hasText: username,
-        });
+            const updatedUserRow = adminPage.userRows.filter({
+                hasText: username,
+            });
 
-        await expect(updatedUserRow).toBeVisible();
-        await expect(updatedUserRow).toContainText('Disabled');
+            await expect(updatedUserRow).toBeVisible();
+            await expect(updatedUserRow).toContainText('Disabled');
+
+        } finally {
+            // Cleanup: delete the user created during the test
+            if (userCreated) {
+                await adminPage.goToUsers();
+                await adminPage.deleteUser(username);
+            }
+        }
     });
 
     test('Admin should be able to delete a user @regression', async ({ page, loginPage }) => {
@@ -256,28 +279,8 @@ test.describe('Admin Tests', () => {
         await expect(page.getByText('Successfully Saved')).toBeVisible();
         await expect(adminPage.adminTitle).toBeVisible();
 
-        // Find the newly created user
-        await adminPage.usernameInput.fill(username);
-        await expect(adminPage.usernameInput).toHaveValue(username);
-        await adminPage.searchButton.click();
-
-        const userRow = adminPage.userRows.filter({
-            hasText: username,
-        });
-
-        await expect(userRow).toBeVisible();
-
-        // Click the delete button
-        await userRow.locator('.oxd-icon.bi-trash').click();
-
-        // Confirm user deletion
-        const deleteDialog = page.getByRole('dialog');
-
-        await expect(deleteDialog).toBeVisible();
-
-        await deleteDialog
-            .getByRole('button', { name: 'Yes, Delete' })
-            .click();
+        // Delete the newly created user
+        await adminPage.deleteUser(username);
 
         await expect(
             page.getByText('Successfully Deleted')
