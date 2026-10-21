@@ -231,6 +231,7 @@ test.describe('Admin Tests', () => {
 
         // Find the newly created user
         await adminPage.usernameInput.fill(username);
+        await expect(adminPage.usernameInput).toHaveValue(username);
         await adminPage.searchButton.click();
 
         const userRow = adminPage.userRows.filter({
