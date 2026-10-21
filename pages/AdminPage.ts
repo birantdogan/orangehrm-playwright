@@ -162,4 +162,25 @@ export class AdminPage {
 
         await this.page.getByText('Users', { exact: true }).click();
     }
+    async deleteUser(username: string) {
+        await this.usernameInput.fill(username);
+        await expect(this.usernameInput).toHaveValue(username);
+        await this.searchButton.click();
+
+        const userRow = this.userRows.filter({
+            hasText: username,
+        });
+
+        await expect(userRow).toBeVisible();
+
+        await userRow.locator('.oxd-icon.bi-trash').click();
+
+        const deleteDialog = this.page.getByRole('dialog');
+
+        await expect(deleteDialog).toBeVisible();
+
+        await deleteDialog
+            .getByRole('button', { name: 'Yes, Delete' })
+            .click();
+    }
 }
