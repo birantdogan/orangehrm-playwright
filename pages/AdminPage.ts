@@ -120,13 +120,18 @@ export class AdminPage {
     async selectEmployee(searchText: string) {
         await this.addEmployeeNameInput.fill(searchText);
 
-        const options = this.page.locator('.oxd-autocomplete-option');
+        const employeeOption = this.page
+            .locator('.oxd-autocomplete-option')
+            .filter({
+                hasNotText: 'Searching....',
+            })
+            .first();
 
-        await expect(options.first()).toBeVisible();
+        await expect(employeeOption).toBeVisible({
+            timeout: 15000,
+        });
 
-        await expect(options.first()).not.toHaveText('Searching....');
-
-        await options.first().click();
+        await employeeOption.click();
     }
     async fillUserForm(username: string, password: string) {
         await this.addUserRoleSelect.click();
