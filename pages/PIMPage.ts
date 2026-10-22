@@ -66,6 +66,13 @@ export class PIMPage {
         await field.fill(value);
     }
     async saveEmployee() {
+        const formLoader = this.page.locator('.oxd-form-loader');
+
+        // Wait until the form loading overlay disappears
+        await expect(formLoader).toBeHidden({ timeout: 15000 });
+
+        // Save the employee
+        await expect(this.saveButton).toBeEnabled();
         await this.saveButton.click();
     }
     async searchEmployeeById(employeeId: string) {

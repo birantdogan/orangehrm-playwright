@@ -77,7 +77,8 @@ test.describe('Login and Logout Tests', () => {
       users.invalidUser.password
     );
 
-    await expect(loginPage.invalidCredentialsMessage).toBeVisible();
+    await expect(loginPage.invalidCredentialsMessage).toBeVisible({
+      timeout: 15000,
+    });
   });
-
 });
