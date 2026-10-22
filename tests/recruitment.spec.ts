@@ -1,5 +1,6 @@
 import { test, expect } from '../fixtures/login.fixture';
 import { users } from '../test-data/users';
+import { RecruitmentPage } from '../pages/RecruitmentPage';
 
 test.describe('Recruitment Tests', () => {
     test('Recruitment page should be displayed @smoke', async ({ loginPage, page }) => {
@@ -75,35 +76,8 @@ test.describe('Recruitment Tests', () => {
     });
 
     test('Create a new candidate @regression', async ({ loginPage, page }) => {
-        await loginPage.login(
-            users.validUser.username,
-            users.validUser.password
-        );
+        const recruitmentPage = new RecruitmentPage(page);
 
-        await page.getByRole('link', { name: 'Recruitment' }).click();
-        await page.getByRole('button', { name: 'Add' }).click();
-
-        const firstName = `Test${Date.now()}`;
-        const lastName = 'Candidate';
-        const email = `candidate${Date.now()}@example.com`;
-
-        await page.getByPlaceholder('First Name').fill(firstName);
-        await page.getByPlaceholder('Last Name').fill(lastName);
-
-        await page
-            .locator('.oxd-input-group')
-            .filter({ has: page.getByText('Email', { exact: true }) })
-            .locator('input')
-            .fill(email);
-
-        await page.getByRole('button', { name: 'Save' }).click();
-
-        await expect(
-            page.getByText('Successfully Saved')
-        ).toBeVisible();
-    });
-
-    test('Search candidate by name @regression', async ({ loginPage, page }) => {
         await loginPage.login(
             users.validUser.username,
             users.validUser.password
@@ -117,43 +91,86 @@ test.describe('Recruitment Tests', () => {
         const fullName = `${firstName} ${lastName}`;
         const email = `candidate${Date.now()}@example.com`;
 
-        await page.getByPlaceholder('First Name').fill(firstName);
-        await page.getByPlaceholder('Last Name').fill(lastName);
+        let candidateCreated = false;
 
-        await page
-            .locator('.oxd-input-group')
-            .filter({ has: page.getByText('Email', { exact: true }) })
-            .locator('input')
-            .fill(email);
+        try {
+            await page.getByPlaceholder('First Name').fill(firstName);
+            await page.getByPlaceholder('Last Name').fill(lastName);
 
-        await page.getByRole('button', { name: 'Save' }).click();
+            await page
+                .locator('.oxd-input-group')
+                .filter({ has: page.getByText('Email', { exact: true }) })
+                .locator('input')
+                .fill(email);
 
-        await expect(
-            page.getByText('Successfully Saved')
-        ).toBeVisible();
+            await page.getByRole('button', { name: 'Save' }).click();
 
-        // Return to Candidates list
-        await page.getByText('Candidates', { exact: true }).click();
+            await expect(
+                page.getByText('Successfully Saved')
+            ).toBeVisible();
 
-        // Search for the newly created candidate
-        const candidateName = page.getByPlaceholder('Type for hints...');
+            candidateCreated = true;
 
-        await candidateName.fill(firstName);
+        } finally {
+            if (candidateCreated) {
+                await recruitmentPage.searchCandidate(firstName, fullName);
+                await recruitmentPage.deleteCandidate(fullName);
+            }
+        }
 
-        const candidateOption = page
-            .locator('.oxd-autocomplete-option')
-            .filter({ hasText: fullName });
+    });
 
-        await expect(candidateOption).toBeVisible();
-        await candidateOption.click();
+    test('Search candidate by name @regression', async ({ loginPage, page }) => {
+        const recruitmentPage = new RecruitmentPage(page);
 
-        await page.getByRole('button', { name: 'Search' }).click();
+        await loginPage.login(
+            users.validUser.username,
+            users.validUser.password
+        );
 
-        // Verify the candidate in search results
-        await expect(
-            page.locator('.oxd-table-body').getByText(fullName, {
-                exact: true,
-            })
-        ).toBeVisible();
+        await page.getByRole('link', { name: 'Recruitment' }).click();
+        await page.getByRole('button', { name: 'Add' }).click();
+
+        const firstName = `Test${Date.now()}`;
+        const lastName = 'Candidate';
+        const fullName = `${firstName} ${lastName}`;
+        const email = `candidate${Date.now()}@example.com`;
+
+        let candidateCreated = false;
+
+        try {
+            // Create a new candidate
+            await page.getByPlaceholder('First Name').fill(firstName);
+            await page.getByPlaceholder('Last Name').fill(lastName);
+
+            await page
+                .locator('.oxd-input-group')
+                .filter({ has: page.getByText('Email', { exact: true }) })
+                .locator('input')
+                .fill(email);
+
+            await page.getByRole('button', { name: 'Save' }).click();
+
+            await expect(
+                page.getByText('Successfully Saved')
+            ).toBeVisible();
+
+            candidateCreated = true;
+
+            // Search and verify the newly created candidate
+            const candidateRow = await recruitmentPage.searchCandidate(
+                firstName,
+                fullName
+            );
+
+            await expect(candidateRow).toContainText(fullName);
+
+        } finally {
+            // Cleanup: delete the candidate created during the test
+            if (candidateCreated) {
+                await recruitmentPage.searchCandidate(firstName, fullName);
+                await recruitmentPage.deleteCandidate(fullName);
+            }
+        }
     });
 });
