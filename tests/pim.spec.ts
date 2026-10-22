@@ -7,8 +7,8 @@ import { generateEmployeeId } from '../utils/testData';
 test.describe('PIM Tests', () => {
 
     // Create a new employee successfully
-    test('User should be able to create a new employee @smoke', async ({ loginPage, page }) => {
 
+    test('User should be able to create a new employee @smoke', async ({ loginPage, page }) => {
         const dashboardPage = new DashboardPage(page);
         const pimPage = new PIMPage(page);
 
@@ -20,30 +20,39 @@ test.describe('PIM Tests', () => {
         await dashboardPage.goToPIM();
         await expect(pimPage.pimTitle).toBeVisible();
 
-        await pimPage.goToAddEmployee();
-
-        await pimPage.fillField(pimPage.firstNameInput, 'John');
-        await expect(pimPage.firstNameInput).toHaveValue('John');
-
-        await pimPage.fillField(pimPage.lastNameInput, 'Doe');
-        await expect(pimPage.lastNameInput).toHaveValue('Doe');
-
         const employeeId = generateEmployeeId();
+        let employeeCreated = false;
 
-        await pimPage.fillField(pimPage.employeeIdInput, employeeId);
-        await expect(pimPage.employeeIdInput).toHaveValue(employeeId);
+        try {
+            await pimPage.goToAddEmployee();
 
-        await pimPage.saveEmployee();
+            await pimPage.fillField(pimPage.firstNameInput, 'John');
+            await expect(pimPage.firstNameInput).toHaveValue('John');
 
-        await expect(pimPage.successToast).toBeVisible();
-        await expect(pimPage.successToast).toContainText('Successfully Saved');
+            await pimPage.fillField(pimPage.lastNameInput, 'Doe');
+            await expect(pimPage.lastNameInput).toHaveValue('Doe');
 
-        await expect(pimPage.personalDetailsTitle).toBeVisible();
-        await expect(pimPage.firstNameInput).toHaveValue('John');
-        await expect(pimPage.lastNameInput).toHaveValue('Doe');
+            await pimPage.fillField(pimPage.employeeIdInput, employeeId);
+            await expect(pimPage.employeeIdInput).toHaveValue(employeeId);
 
-        //await page.pause();
-        //await expect(page).toHaveURL(/pim\/addEmployee/);
+            await pimPage.saveEmployee();
+            employeeCreated = true;
+
+            await expect(pimPage.successToast).toBeVisible();
+            await expect(pimPage.successToast).toContainText('Successfully Saved');
+
+            await expect(pimPage.personalDetailsTitle).toBeVisible();
+            await expect(pimPage.firstNameInput).toHaveValue('John');
+            await expect(pimPage.lastNameInput).toHaveValue('Doe');
+
+        } finally {
+            // Cleanup: delete the employee created during the test
+            if (employeeCreated) {
+                await pimPage.goToEmployeeList();
+                await pimPage.searchEmployeeById(employeeId);
+                await pimPage.deleteEmployee(employeeId);
+            }
+        }
     });
 
     // Delete a newly created employee
@@ -153,6 +162,7 @@ test.describe('PIM Tests', () => {
     });
 
     // Edit an employee's first name
+
     test('User should be able to edit an employee @regression', async ({ loginPage, page }) => {
         await loginPage.login(
             users.validUser.username,
@@ -165,46 +175,60 @@ test.describe('PIM Tests', () => {
         await dashboardPage.goToPIM();
         await expect(pimPage.pimTitle).toBeVisible();
 
-        await pimPage.goToAddEmployee();
-        await pimPage.fillField(pimPage.firstNameInput, 'Edit');
-        await pimPage.fillField(pimPage.lastNameInput, 'Test');
-
         const employeeId = generateEmployeeId();
+        let employeeCreated = false;
 
-        await pimPage.fillField(pimPage.employeeIdInput, employeeId);
-        await pimPage.saveEmployee();
+        try {
+            await pimPage.goToAddEmployee();
+            await pimPage.fillField(pimPage.firstNameInput, 'Edit');
+            await pimPage.fillField(pimPage.lastNameInput, 'Test');
 
-        await expect(pimPage.successToast).toBeVisible();
-        await expect(pimPage.successToast).toContainText('Successfully Saved');
-        await pimPage.goToEmployeeList();
-        await expect(pimPage.pimTitle).toBeVisible();
+            await pimPage.fillField(pimPage.employeeIdInput, employeeId);
+            await pimPage.saveEmployee();
+            employeeCreated = true;
 
-        await pimPage.searchEmployeeById(employeeId);
+            await expect(pimPage.successToast).toBeVisible();
+            await expect(pimPage.successToast).toContainText('Successfully Saved');
 
+            await pimPage.goToEmployeeList();
+            await expect(pimPage.pimTitle).toBeVisible();
 
-        const employeeRow = pimPage.getEmployeeRowById(employeeId);
-        await expect(employeeRow).toBeVisible();
+            await pimPage.searchEmployeeById(employeeId);
 
-        await employeeRow.click();
+            const employeeRow = pimPage.getEmployeeRowById(employeeId);
+            await expect(employeeRow).toBeVisible();
 
-        await expect(pimPage.personalDetailsTitle).toBeVisible();
-        await pimPage.firstNameInput.click();
-        await pimPage.firstNameInput.press('Control+A');
-        await pimPage.firstNameInput.type('Edited');
+            await employeeRow.click();
 
-        await expect(pimPage.firstNameInput).toHaveValue('Edited');
+            await expect(pimPage.personalDetailsTitle).toBeVisible();
 
-        await pimPage.saveEmployee();
-        await expect(pimPage.successToast).toBeVisible();
-        await expect(pimPage.successToast).toContainText('Successfully Updated');
+            await pimPage.firstNameInput.click();
+            await pimPage.firstNameInput.press('Control+A');
+            await pimPage.firstNameInput.type('Edited');
 
-        await pimPage.goToEmployeeList();
-        await expect(pimPage.pimTitle).toBeVisible();
+            await expect(pimPage.firstNameInput).toHaveValue('Edited');
 
-        await pimPage.searchEmployeeById(employeeId);
+            await pimPage.saveEmployee();
 
-        await expect(employeeRow).toBeVisible();
-        await expect(employeeRow).toContainText('Edited');
+            await expect(pimPage.successToast).toBeVisible();
+            await expect(pimPage.successToast).toContainText('Successfully Updated');
+
+            await pimPage.goToEmployeeList();
+            await expect(pimPage.pimTitle).toBeVisible();
+
+            await pimPage.searchEmployeeById(employeeId);
+
+            await expect(employeeRow).toBeVisible();
+            await expect(employeeRow).toContainText('Edited');
+
+        } finally {
+            // Cleanup: delete the employee created during the test
+            if (employeeCreated) {
+                await pimPage.goToEmployeeList();
+                await pimPage.searchEmployeeById(employeeId);
+                await pimPage.deleteEmployee(employeeId);
+            }
+        }
     });
 
     // Verify employee details after searching by ID
