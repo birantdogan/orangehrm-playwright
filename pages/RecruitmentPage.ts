@@ -32,17 +32,26 @@ export class RecruitmentPage {
 
     async searchCandidate(firstName: string, fullName: string) {
         // Navigate to Candidates list
-        await this.page.goto('/web/index.php/recruitment/viewCandidates');
+        await this.page.goto(
+            '/web/index.php/recruitment/viewCandidates',
+            { waitUntil: 'domcontentloaded' }
+        );
 
-        await expect(
-            this.page.getByRole('heading', {
-                name: 'Candidates',
-                exact: true,
-            })
-        ).toBeVisible();
+        // Verify correct page URL
+        await expect(this.page).toHaveURL(/recruitment\/viewCandidates/);
+
+        // Wait for Candidates page to become visible
+        const candidatesTitle = this.page.getByRole('heading', {
+            name: 'Candidates',
+            exact: true,
+        });
+
+        await expect(candidatesTitle).toBeVisible();
 
         // Search candidate by name
         const candidateName = this.page.getByPlaceholder('Type for hints...');
+        await expect(candidateName).toBeVisible();
+
         await candidateName.fill(firstName);
 
         const candidateOption = this.page

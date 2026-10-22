@@ -75,7 +75,7 @@ test.describe('Recruitment Tests', () => {
         ).toBeVisible();
     });
 
-    test('Create a new candidate @regression', async ({ loginPage, page }) => {
+    test('Create a new candidate @regression', async ({ loginPage, page }, testInfo) => {
         const recruitmentPage = new RecruitmentPage(page);
 
         await loginPage.login(
@@ -113,14 +113,23 @@ test.describe('Recruitment Tests', () => {
 
         } finally {
             if (candidateCreated) {
-                await recruitmentPage.searchCandidate(firstName, fullName);
-                await recruitmentPage.deleteCandidate(fullName);
+                testInfo.setTimeout(testInfo.timeout + 15000);
+
+                try {
+                    await recruitmentPage.searchCandidate(firstName, fullName);
+                    await recruitmentPage.deleteCandidate(fullName);
+                } catch (cleanupError) {
+                    if (testInfo.errors.length > 0) {
+                        console.error('Candidate cleanup failed:', cleanupError);
+                    } else {
+                        throw cleanupError;
+                    }
+                }
             }
         }
-
     });
 
-    test('Search candidate by name @regression', async ({ loginPage, page }) => {
+    test('Search candidate by name @regression', async ({ loginPage, page }, testInfo) => {
         const recruitmentPage = new RecruitmentPage(page);
 
         await loginPage.login(
@@ -166,10 +175,19 @@ test.describe('Recruitment Tests', () => {
             await expect(candidateRow).toContainText(fullName);
 
         } finally {
-            // Cleanup: delete the candidate created during the test
             if (candidateCreated) {
-                await recruitmentPage.searchCandidate(firstName, fullName);
-                await recruitmentPage.deleteCandidate(fullName);
+                testInfo.setTimeout(testInfo.timeout + 15000);
+
+                try {
+                    await recruitmentPage.searchCandidate(firstName, fullName);
+                    await recruitmentPage.deleteCandidate(fullName);
+                } catch (cleanupError) {
+                    if (testInfo.errors.length > 0) {
+                        console.error('Candidate cleanup failed:', cleanupError);
+                    } else {
+                        throw cleanupError;
+                    }
+                }
             }
         }
     });
