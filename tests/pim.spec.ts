@@ -82,9 +82,14 @@ test.describe('PIM Tests', () => {
         await expect(pimPage.successToast).toContainText('Successfully Saved');
         await pimPage.goToEmployeeList();
         await expect(pimPage.pimTitle).toBeVisible();
+
+        // Search for the newly created employee
+        await pimPage.searchEmployeeById(employeeId);
+
         const employeeRow = pimPage.getEmployeeRowById(employeeId);
 
         await expect(employeeRow).toBeVisible();
+
         await pimPage.deleteEmployee(employeeId);
 
         await expect(pimPage.successToast).toBeVisible();
