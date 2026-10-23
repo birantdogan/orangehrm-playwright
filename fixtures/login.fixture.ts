@@ -7,7 +7,7 @@ type Fixtures = {
 
 export const test = base.extend<Fixtures>({
   loginPage: async ({ page }, use) => {
-    await page.goto('/');
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
     await use(new LoginPage(page));
   },
 });
