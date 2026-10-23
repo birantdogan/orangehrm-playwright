@@ -26,80 +26,60 @@ export class AdminPage {
             name: 'Admin',
         });
 
-        this.userRows = page.locator('.oxd-table-row');
+        this.userRows = page.getByRole('row').filter({
+            has: page.getByRole('cell'),
+        });
 
-        this.usernameInput = page
-            .locator('.oxd-input-group')
-            .filter({
-                has: page.getByText('Username', { exact: true }),
-            })
-            .locator('input');
+        this.usernameInput = page.locator(
+            'xpath=//label[normalize-space()="Username"]/../following-sibling::div//input'
+        );
 
         this.searchButton = page.getByRole('button', {
             name: 'Search',
             exact: true,
         });
 
-        this.userRoleSelect = page
-            .locator('.oxd-input-group')
-            .filter({
-                has: page.getByText('User Role', { exact: true }),
-            })
-            .locator('.oxd-select-text-input');
-
-        this.statusSelect = page
-            .locator('.oxd-input-group')
-            .filter({
-                has: page.getByText('Status', { exact: true }),
-            })
-            .locator('.oxd-select-text-input');
-
-        this.editButtons = page.locator('.oxd-icon.bi-pencil-fill');
-
-        this.addButton = page.locator(
-            '.orangehrm-header-container button'
+        this.userRoleSelect = page.locator(
+            'xpath=//label[normalize-space()="User Role"]/../following-sibling::div//div[@tabindex="0"]'
         );
+
+        this.statusSelect = page.locator(
+            'xpath=//label[normalize-space()="Status"]/../following-sibling::div//div[@tabindex="0"]'
+        );
+
+        this.editButtons = page.locator('button').filter({
+            has: page.locator('[class*="pencil"]'),
+        });
+
+        this.addButton = page.locator('button').filter({
+            hasText: 'Add',
+        });
 
         this.addUserTitle = page.getByRole('heading', {
             name: 'Add User',
         });
 
-        this.addUserRoleSelect = page
-            .locator('.oxd-input-group')
-            .filter({
-                has: page.getByText('User Role', { exact: true }),
-            })
-            .locator('.oxd-select-text-input');
+        this.addUserRoleSelect = page.locator(
+            'xpath=//label[normalize-space()="User Role"]/../following-sibling::div//div[@tabindex="0"]'
+        );
 
         this.addEmployeeNameInput = page.getByPlaceholder('Type for hints...');
 
-        this.addStatusSelect = page
-            .locator('.oxd-input-group')
-            .filter({
-                has: page.getByText('Status', { exact: true }),
-            })
-            .locator('.oxd-select-text-input');
+        this.addStatusSelect = page.locator(
+            'xpath=//label[normalize-space()="Status"]/../following-sibling::div//div[@tabindex="0"]'
+        );
 
-        this.addUsernameInput = page
-            .locator('.oxd-input-group')
-            .filter({
-                has: page.getByText('Username', { exact: true }),
-            })
-            .locator('input');
+        this.addUsernameInput = page.locator(
+            'xpath=//label[normalize-space()="Username"]/../following-sibling::div//input'
+        );
 
-        this.addPasswordInput = page
-            .locator('.oxd-input-group')
-            .filter({
-                has: page.getByText('Password', { exact: true }),
-            })
-            .locator('input');
+        this.addPasswordInput = page.locator(
+            'xpath=//label[normalize-space()="Password"]/../following-sibling::div//input[@type="password"]'
+        );
 
-        this.addConfirmPasswordInput = page
-            .locator('.oxd-input-group')
-            .filter({
-                has: page.getByText('Confirm Password', { exact: true }),
-            })
-            .locator('input');
+        this.addConfirmPasswordInput = page.locator(
+            'xpath=//label[normalize-space()="Confirm Password"]/../following-sibling::div//input[@type="password"]'
+        );
 
         this.saveButton = page.getByRole('button', {
             name: 'Save',
@@ -110,18 +90,16 @@ export class AdminPage {
             name: 'Edit User',
         });
 
-        this.editUsernameInput = page
-            .locator('.oxd-input-group')
-            .filter({
-                has: page.getByText('Username', { exact: true }),
-            })
-            .locator('input');
+        this.editUsernameInput = page.locator(
+            'xpath=//label[normalize-space()="Username"]/../following-sibling::div//input'
+        );
     }
     async selectEmployee(searchText: string) {
         await this.addEmployeeNameInput.fill(searchText);
 
         const employeeOption = this.page
-            .locator('.oxd-autocomplete-option')
+            .getByRole('listbox')
+            .getByRole('option')
             .filter({
                 hasNotText: 'Searching....',
             })
@@ -178,7 +156,9 @@ export class AdminPage {
 
         await expect(userRow).toBeVisible();
 
-        await userRow.locator('.oxd-icon.bi-trash').click();
+        await userRow.locator('button').filter({
+            has: this.page.locator('[class*="trash"]'),
+        }).click();
 
         const deleteDialog = this.page.getByRole('dialog');
 
