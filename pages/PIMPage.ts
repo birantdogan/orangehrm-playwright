@@ -16,38 +16,51 @@ export class PIMPage {
     readonly confirmDeleteButton: Locator;
 
     constructor(private page: Page) {
+
         this.pimTitle = page.getByRole('heading', {
             name: 'PIM',
         });
+
         this.addButton = page.locator('button').filter({
             hasText: 'Add',
         });
+
         this.firstNameInput = page.getByPlaceholder('First Name');
+
         this.lastNameInput = page.getByPlaceholder('Last Name');
-        this.employeeIdInput = page
-            .locator('.oxd-input-group')
-            .filter({
-                has: page.getByText('Employee Id', { exact: true }),
-            })
-            .locator('input');
+
+        this.employeeIdInput = page.locator(
+            'xpath=//label[normalize-space()="Employee Id"]/../following-sibling::div//input'
+        );
+
         this.saveButton = page
             .locator('form')
             .filter({
                 has: page.getByPlaceholder('First Name'),
             })
             .getByRole('button', { name: 'Save' });
-        this.successToast = page.locator('.oxd-toast--success');
+
+        this.successToast = page.locator('[aria-live="assertive"]').filter({
+            hasText: 'Success',
+        });
+
         this.personalDetailsTitle = page.getByRole('heading', {
             name: 'Personal Details',
         });
+
         this.employeeIdAlreadyExistsMessage = page.getByText(
             'Employee Id already exists',
             { exact: true }
         );
+
         this.searchButton = page.locator('button').filter({
             hasText: 'Search',
         });
-        this.employeeCards = page.locator('.oxd-table-card');
+
+        this.employeeCards = page.getByRole('row').filter({
+            has: page.getByRole('cell'),
+        });
+
         this.deleteConfirmationDialog = page.getByRole('document').filter({
             hasText: 'Are you Sure?',
         });
@@ -79,27 +92,26 @@ export class PIMPage {
         await this.employeeIdInput.fill(employeeId);
         await this.searchButton.click();
 
-        return this.page
-            .locator('.oxd-table-row')
-            .filter({
-                has: this.page.getByText(employeeId, { exact: true }),
-            })
-            .getByText(employeeId, { exact: true });
+        return this.getEmployeeRowById(employeeId).getByRole('cell', {
+            name: employeeId,
+            exact: true,
+        });
     }
     getEmployeeRowById(employeeId: string) {
-        return this.page
-            .locator('.oxd-table-row')
-            .filter({
-                has: this.page.getByText(employeeId, { exact: true }),
-            });
+        return this.employeeCards.filter({
+            has: this.page.getByRole('cell', {
+                name: employeeId,
+                exact: true,
+            }),
+        });
     }
     async deleteEmployee(employeeId: string) {
         const employeeRow = this.getEmployeeRowById(employeeId);
 
         await employeeRow
-            .locator('button')
+            .getByRole('button')
             .filter({
-                has: this.page.locator('.bi-trash'),
+                has: this.page.locator('i.bi-trash'),
             })
             .click();
 
