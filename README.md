@@ -8,14 +8,15 @@ The project contains **40 automated tests** across six application modules. It u
 
 ## Test Coverage
 
-| Module | Scenarios covered |
-| --- | --- |
-| Login & Logout | Successful and unsuccessful login, required-field validation, logout |
-| PIM | Employee creation, search, editing, deletion, duplicate ID validation |
-| Admin | User management, searching, filtering, creation, editing, deletion |
-| Recruitment | Candidate and vacancy navigation, candidate creation and search |
-| Leave | Leave-related workflows and validations |
-| Time | Time-related workflows and validations |
+| Module | Tests | Scenarios covered |
+| --- | ---: | --- |
+| Login & Logout | 8 | Successful and unsuccessful login, required-field validation, logout |
+| PIM | 7 | Employee creation, search, editing, deletion, duplicate ID validation |
+| Admin | 10 | User management, searching, role/status filtering, creation, editing, deletion |
+| Recruitment | 7 | Candidate management, creation, search, deletion, vacancy navigation |
+| Leave | 4 | Leave navigation, Apply Leave page, leave type and balance visibility |
+| Time | 4 | Time navigation, Timesheets page, Attendance submenu |
+| **Total** | **40** | **6 application modules** |
 
 Tests are tagged as **`@smoke`** or **`@regression`** to support targeted execution.
 
@@ -53,7 +54,7 @@ package.json          # Dependencies and npm scripts
 2. Install dependencies:
 
    ```bash
-   npm install
+   npm ci
    ```
 
 3. Install the Chromium browser:
@@ -62,7 +63,14 @@ package.json          # Dependencies and npm scripts
    npx playwright install chromium
    ```
 
-4. Configure any required environment variables for the test credentials according to your local setup. Do not commit secrets or `.env` files containing real credentials.
+4. Configure the following environment variables with credentials for the OrangeHRM demo environment:
+
+   ```text
+   ORANGEHRM_USERNAME
+   ORANGEHRM_PASSWORD
+   ```
+
+   Set these variables in your shell or local environment before running tests. The GitHub Actions workflow reads them from repository secrets. **Never commit credentials or `.env` files containing secrets.**
 
 ## Running Tests
 
@@ -76,14 +84,21 @@ package.json          # Dependencies and npm scripts
 
 The npm test scripts use **one worker** to reduce contention when testing the shared public demo environment.
 
+To run the full suite explicitly with one worker:
+
+```bash
+npx playwright test --project=chromium --workers=1
+```
+
 ## Automation Approach
 
-- **Page Object Model:** Page locators and interactions are organized into reusable classes.
-- **Custom fixtures:** Shared setup and page objects reduce duplication in test files.
-- **Dynamic test data:** Generated identifiers help avoid collisions in create/delete scenarios.
-- **Playwright assertions:** Auto-retrying assertions validate UI behavior without fixed sleeps.
-- **Smoke and regression tags:** Tests can be executed by purpose.
-- **Test stability:** Explicit synchronization handles loading overlays and asynchronous UI options where needed.
+- **Page Object Model:** Reusable page classes encapsulate interactions for modules that benefit from abstraction.
+- **Semantic locators:** Prefer Playwright role-, label-, and placeholder-based locators; use targeted selectors where the UI does not expose accessible names.
+- **Reusable fixtures:** Shared login setup helps keep test files consistent.
+- **Dynamic test data and cleanup:** Generated identifiers reduce collisions, and create/edit scenarios clean up test records where applicable.
+- **Synchronization:** Playwright's auto-waiting and retrying assertions handle asynchronous UI behavior without fixed sleeps.
+- **Smoke and regression tags:** Scenarios can be run by purpose.
+- **Flaky test investigation:** CI retries and trace collection help distinguish intermittent failures from persistent defects; retries are not treated as a substitute for root-cause analysis.
 
 ## Reporting and Debugging
 
@@ -93,17 +108,19 @@ Playwright generates an **HTML test report** after execution. Open it with:
 npm run test:report
 ```
 
-The Playwright configuration also captures **traces on the first retry in CI**, helping investigate failed tests.
+The configuration captures **traces on the first retry in CI**, supporting investigation of intermittent failures. CI runs use up to **two retries** for failed tests; local runs use no retries by default.
 
 ## Continuous Integration
 
-The [GitHub Actions workflow](https://github.com/birantdogan/orangehrm-playwright/actions/workflows/playwright.yml) runs the Chromium test suite on repository pushes and pull requests. The badge at the top of this README shows the workflow's current status.
+The [GitHub Actions workflow](https://github.com/birantdogan/orangehrm-playwright/actions/workflows/playwright.yml) runs the Chromium test suite on pushes and pull requests targeting `main` or `master`. Credentials are supplied through GitHub Actions secrets. HTML reports are uploaded as workflow artifacts and retained for 30 days.
+
+The badge at the top of this README shows the workflow's current status.
 
 ## Test Environment
 
 **Application under test:** [OrangeHRM Open Source Demo](https://opensource-demo.orangehrmlive.com/)
 
-This project uses a publicly shared demo environment. Application responsiveness and test data may vary, so occasional environment-related failures are possible.
+This project uses a publicly shared demo environment. Application responsiveness and test data may vary, so occasional environment-related failures are possible. A retry that passes is reported as **flaky** rather than assumed to be an environment issue.
 
 ## Repository
 
