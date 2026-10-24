@@ -13,12 +13,16 @@ export class RecruitmentPage {
 
         // Click delete button for the selected candidate
         await candidateRow
-            .locator('button')
-            .filter({ has: this.page.locator('.bi-trash') })
+            .getByRole('button')
+            .filter({
+                has: this.page.locator('i.bi-trash'),
+            })
             .click();
 
         // Confirm deletion
-        const deleteDialog = this.page.locator('.orangehrm-dialog-popup');
+        const deleteDialog = this.page.locator('[role="document"]').filter({
+            hasText: 'Are you Sure?',
+        });
 
         await expect(deleteDialog).toBeVisible();
         await expect(
@@ -55,7 +59,7 @@ export class RecruitmentPage {
         await candidateName.fill(firstName);
 
         const candidateOption = this.page
-            .locator('.oxd-autocomplete-option')
+            .getByRole('option')
             .filter({ hasText: fullName });
 
         await expect(candidateOption).toBeVisible();
