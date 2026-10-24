@@ -229,7 +229,10 @@ test.describe('PIM Tests', () => {
         } finally {
             // Cleanup: delete the employee created during the test
             if (employeeCreated) {
-                await pimPage.goToEmployeeList();
+                if (!page.url().includes('/pim/viewEmployeeList')) {
+                    await pimPage.goToEmployeeList();
+                }
+
                 await pimPage.searchEmployeeById(employeeId);
                 await pimPage.deleteEmployee(employeeId);
             }

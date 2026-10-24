@@ -92,10 +92,17 @@ export class PIMPage {
         await this.employeeIdInput.fill(employeeId);
         await this.searchButton.click();
 
-        return this.getEmployeeRowById(employeeId).getByRole('cell', {
-            name: employeeId,
-            exact: true,
+        const employeeIdCell = this.getEmployeeRowById(employeeId)
+            .getByRole('cell', {
+                name: employeeId,
+                exact: true,
+            });
+
+        await expect(employeeIdCell).toBeVisible({
+            timeout: 15000,
         });
+
+        return employeeIdCell;
     }
     getEmployeeRowById(employeeId: string) {
         return this.employeeCards.filter({
