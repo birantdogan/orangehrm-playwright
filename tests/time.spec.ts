@@ -1,28 +1,28 @@
+
 import { test, expect } from '../fixtures/login.fixture';
 import { users } from '../test-data/users';
 
 test.describe('Time Tests', () => {
-    test('Time page should be displayed @smoke', async ({ loginPage, page }) => {
+
+    test.beforeEach(async ({ loginPage, page }) => {
         await loginPage.login(
             users.validUser.username,
             users.validUser.password
         );
 
-        await page.getByRole('link', { name: 'Time' }).click();
+        await page.getByRole('link', {
+            name: 'Time',
+            exact: true,
+        }).click();
+    });
 
+    test('Time page should be displayed @smoke', async ({ page }) => {
         await expect(
             page.getByRole('heading', { name: 'Time', exact: true })
         ).toBeVisible();
     });
 
-    test('Time navigation options should be displayed @regression', async ({ loginPage, page }) => {
-        await loginPage.login(
-            users.validUser.username,
-            users.validUser.password
-        );
-
-        await page.getByRole('link', { name: 'Time' }).click();
-
+    test('Time navigation options should be displayed @regression', async ({ page }) => {
         const topbarMenu = page.getByRole('navigation', {
             name: 'Topbar Menu',
         });
@@ -33,14 +33,7 @@ test.describe('Time Tests', () => {
         await expect(topbarMenu.getByText('Project Info')).toBeVisible();
     });
 
-    test('Timesheets page should be displayed @regression', async ({ loginPage, page }) => {
-        await loginPage.login(
-            users.validUser.username,
-            users.validUser.password
-        );
-
-        await page.getByRole('link', { name: 'Time' }).click();
-
+    test('Timesheets page should be displayed @regression', async ({ page }) => {
         const topbarMenu = page.getByRole('navigation', {
             name: 'Topbar Menu',
         });
@@ -52,14 +45,7 @@ test.describe('Time Tests', () => {
         ).toBeVisible();
     });
 
-    test('Attendance submenu options should be displayed @regression', async ({ loginPage, page }) => {
-        await loginPage.login(
-            users.validUser.username,
-            users.validUser.password
-        );
-
-        await page.getByRole('link', { name: 'Time' }).click();
-
+    test('Attendance submenu options should be displayed @regression', async ({ page }) => {
         const topbarMenu = page.getByRole('navigation', {
             name: 'Topbar Menu',
         });
