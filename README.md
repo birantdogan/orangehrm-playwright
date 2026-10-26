@@ -4,28 +4,31 @@
 
 A UI test automation project built with **Playwright** and **TypeScript** to validate key workflows in the [OrangeHRM demo application](https://opensource-demo.orangehrmlive.com/).
 
-The project contains **40 automated tests** across six application modules. It uses the **Page Object Model (POM)**, reusable Playwright fixtures, dynamic test data, and GitHub Actions for continuous integration.
+The framework focuses on maintainability, reusable test components, structured reporting, and continuous integration.
 
 ## Test Coverage
 
-| Module | Tests | Scenarios covered |
-| --- | ---: | --- |
-| Login & Logout | 8 | Successful and unsuccessful login, required-field validation, logout |
-| PIM | 7 | Employee creation, search, editing, deletion, duplicate ID validation |
-| Admin | 10 | User management, searching, role/status filtering, creation, editing, deletion |
-| Recruitment | 7 | Candidate management, creation, search, deletion, vacancy navigation |
-| Leave | 4 | Leave navigation, Apply Leave page, leave type and balance visibility |
-| Time | 4 | Time navigation, Timesheets page, Attendance submenu |
-| **Total** | **40** | **6 application modules** |
+The automated test suite covers various workflows across the OrangeHRM application.
 
-Tests are tagged as **`@smoke`** or **`@regression`** to support targeted execution.
+| Module | Scenarios Covered |
+|---|---|
+| Login & Logout | Successful and unsuccessful login, required-field validation, logout |
+| PIM | Employee creation, search, editing, deletion, duplicate ID validation |
+| Admin | User management, searching, role/status filtering, creation, editing, deletion |
+| Recruitment | Candidate management, creation, search, deletion, vacancy navigation |
+| Leave | Leave navigation, Apply Leave page, leave type and balance visibility |
+| Time | Time navigation, Timesheets page, Attendance submenu |
+
+Tests are categorized using `@smoke` and `@regression` tags to support targeted execution.
 
 ## Tech Stack
 
-- **Playwright Test** — browser automation, assertions, and test execution
-- **TypeScript** — test and framework implementation
-- **Node.js / npm** — dependency management and scripts
-- **GitHub Actions** — automated CI test execution
+- **Playwright Test** — Browser automation, assertions, and test execution
+- **TypeScript** — Test and framework implementation
+- **Node.js / npm** — Dependency management and execution scripts
+- **Page Object Model (POM)** — Reusable page abstractions
+- **PDFKit** — Custom PDF test report generation
+- **GitHub Actions** — Continuous integration and automated reporting
 
 ## Project Structure
 
@@ -33,94 +36,178 @@ Tests are tagged as **`@smoke`** or **`@regression`** to support targeted execut
 .github/workflows/   # GitHub Actions CI workflow
 fixtures/            # Reusable Playwright fixtures
 pages/               # Page Object Model classes
-test-data/            # Test data and credentials configuration
-tests/                # Automated test scenarios
-utils/                # Reusable test utilities
-playwright.config.ts  # Playwright configuration
-package.json          # Dependencies and npm scripts
+scripts/             # Test execution and PDF reporting utilities
+test-data/           # Test data and credentials configuration
+tests/               # Automated test scenarios
+utils/               # Reusable test utilities
+playwright.config.ts # Playwright configuration
+package.json         # Dependencies and npm scripts
 ```
+
+Generated reports and test artifacts are stored separately from the source code and excluded from version control.
 
 ## Getting Started
 
 **Prerequisites:** Node.js and npm installed.
 
-1. Clone the repository:
+### 1. Clone the repository
 
-   ```bash
-   git clone https://github.com/birantdogan/orangehrm-playwright.git
-   cd orangehrm-playwright
-   ```
+```bash
+git clone https://github.com/birantdogan/orangehrm-playwright.git
+cd orangehrm-playwright
+```
 
-2. Install dependencies:
+### 2. Install dependencies
 
-   ```bash
-   npm ci
-   ```
+```bash
+npm ci
+```
 
-3. Install the Chromium browser:
+### 3. Install the Chromium browser
 
-   ```bash
-   npx playwright install chromium
-   ```
+```bash
+npx playwright install chromium
+```
 
-4. Configure the following environment variables with credentials for the OrangeHRM demo environment:
+### 4. Configure environment variables
 
-   ```text
-   ORANGEHRM_USERNAME
-   ORANGEHRM_PASSWORD
-   ```
+The framework uses the following environment variables for authentication:
 
-   Set these variables in your shell or local environment before running tests. The GitHub Actions workflow reads them from repository secrets. **Never commit credentials or `.env` files containing secrets.**
+```text
+ORANGEHRM_USERNAME
+ORANGEHRM_PASSWORD
+```
+
+Configure these variables in your local environment before running tests.
+
+GitHub Actions retrieves credentials from repository secrets.
+
+**Never commit credentials or `.env` files containing sensitive information.**
 
 ## Running Tests
 
 | Command | Description |
-| --- | --- |
-| `npm test` | Run all tests in Chromium |
+|---|---|
+| `npm test` | Run the complete Chromium test suite and automatically generate a PDF report |
 | `npm run test:headed` | Run tests with the browser visible |
 | `npm run test:smoke` | Run smoke tests |
 | `npm run test:regression` | Run regression tests |
 | `npm run test:report` | Open the Playwright HTML report |
+| `npm run report:pdf` | Generate a PDF report from existing JSON results |
 
-The npm test scripts use **one worker** to reduce contention when testing the shared public demo environment.
+The default `npm test` command executes the Chromium test suite using a single worker to reduce contention in the shared demo environment.
 
-To run the full suite explicitly with one worker:
+After execution, a custom reporting script generates a PDF report using the Playwright JSON results.
 
-```bash
-npx playwright test --project=chromium --workers=1
-```
+Other test commands invoke Playwright directly and do not automatically generate the PDF report.
 
 ## Automation Approach
 
-- **Page Object Model:** Reusable page classes encapsulate interactions for modules that benefit from abstraction.
-- **Semantic locators:** Prefer Playwright role-, label-, and placeholder-based locators; use targeted selectors where the UI does not expose accessible names.
-- **Reusable fixtures:** Shared login setup helps keep test files consistent.
-- **Dynamic test data and cleanup:** Generated identifiers reduce collisions, and create/edit scenarios clean up test records where applicable.
-- **Synchronization:** Playwright's auto-waiting and retrying assertions handle asynchronous UI behavior without fixed sleeps.
-- **Smoke and regression tags:** Scenarios can be run by purpose.
-- **Flaky test investigation:** CI retries and trace collection help distinguish intermittent failures from persistent defects; retries are not treated as a substitute for root-cause analysis.
+The framework follows established test automation practices to improve maintainability, readability, and reliability.
+
+- **Page Object Model:** Reusable page classes encapsulate application interactions and reduce duplication.
+- **Semantic locators:** Playwright role-, label-, and placeholder-based locators are preferred, with targeted selectors used where necessary.
+- **Reusable fixtures:** Shared setup logic provides consistent test initialization.
+- **Dynamic test data:** Generated identifiers help prevent conflicts in the shared test environment.
+- **Test data cleanup:** Applicable scenarios remove generated records to reduce interference between executions.
+- **Synchronization:** Playwright's auto-waiting and retrying assertions handle asynchronous UI behavior without unnecessary fixed delays.
+- **Test categorization:** Smoke and regression tags support different execution needs.
+- **Failure investigation:** Trace collection and retry information support debugging and root-cause analysis.
 
 ## Reporting and Debugging
 
-Playwright generates an **HTML test report** after execution. Open it with:
+The framework supports HTML, JSON, and PDF reporting to provide visibility into test execution and facilitate failure investigation.
+
+### HTML Report
+
+Playwright generates an interactive HTML report containing test results, execution details, and debugging information.
+
+Open the report locally:
 
 ```bash
 npm run test:report
 ```
 
-The configuration captures **traces on the first retry in CI**, supporting investigation of intermittent failures. CI runs use up to **two retries** for failed tests; local runs use no retries by default.
+### JSON Report
+
+Playwright generates structured execution results in:
+
+```text
+test-results/results.json
+```
+
+The JSON report serves as the data source for custom PDF report generation.
+
+### Automated PDF Report
+
+A custom reporting solution built with **PDFKit** generates a structured PDF test execution report.
+
+The report includes:
+
+- Execution summary and test status distribution
+- Overall execution duration
+- Module-level test breakdown
+- Failure analysis and error details when failures occur
+- Individual test case results and execution times
+
+The PDF report is generated automatically when running:
+
+```bash
+npm test
+```
+
+The generated file is saved as:
+
+```text
+test-execution-report.pdf
+```
+
+To regenerate the PDF using existing JSON results without rerunning the test suite:
+
+```bash
+npm run report:pdf
+```
+
+The reporting workflow is designed to generate the PDF regardless of whether the test execution succeeds or fails, while preserving the original test execution exit status.
+
+A separate failure simulation utility is available to validate the report's failure analysis functionality without modifying the original execution results.
+
+### Debugging and Retries
+
+The framework uses Playwright's tracing and retry capabilities to support test failure investigation.
+
+CI executions allow retries for failed tests, while local executions run without retries by default.
+
+Tests that pass after retrying are classified as **flaky**, allowing intermittent failures to be distinguished from consistently successful executions.
 
 ## Continuous Integration
 
-The [GitHub Actions workflow](https://github.com/birantdogan/orangehrm-playwright/actions/workflows/playwright.yml) runs the Chromium test suite on pushes and pull requests targeting `main` or `master`. Credentials are supplied through GitHub Actions secrets. HTML reports are uploaded as workflow artifacts and retained for 30 days.
+The project uses [GitHub Actions](https://github.com/birantdogan/orangehrm-playwright/actions/workflows/playwright.yml) to automate test execution and reporting.
 
-The badge at the top of this README shows the workflow's current status.
+The CI workflow:
+
+- Runs on pushes and pull requests targeting the configured main branches
+- Installs project dependencies and the required browser
+- Executes the Playwright test suite
+- Generates the PDF test execution report
+- Uploads HTML and PDF reports as downloadable workflow artifacts
+- Preserves test execution failures in the workflow status
+
+Authentication credentials are provided through GitHub Actions secrets.
+
+Reports are retained according to the artifact retention configuration defined in the workflow.
+
+The workflow status badge at the top of this README provides visibility into CI execution status.
 
 ## Test Environment
 
 **Application under test:** [OrangeHRM Open Source Demo](https://opensource-demo.orangehrmlive.com/)
 
-This project uses a publicly shared demo environment. Application responsiveness and test data may vary, so occasional environment-related failures are possible. A retry that passes is reported as **flaky** rather than assumed to be an environment issue.
+The framework runs against a publicly shared demo environment.
+
+Application responsiveness, shared test data, and environment availability may affect execution stability.
+
+Intermittent failures are investigated using test results, retry information, and available debugging artifacts rather than automatically being attributed to the environment.
 
 ## Repository
 
