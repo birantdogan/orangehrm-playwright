@@ -130,8 +130,8 @@ export class PIMPage {
 
         await this.confirmDeleteButton.click();
 
-        await expect(this.successToast)
-            .toContainText('Successfully Deleted');
+        // Verify employee is removed from the list
+        await expect(employeeRow).toHaveCount(0);
     }
     async getFirstEmployeeId() {
         await expect(this.employeeCards.first()).toBeVisible();
