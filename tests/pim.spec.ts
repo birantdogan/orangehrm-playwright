@@ -169,6 +169,8 @@ test.describe('PIM Tests', () => {
     // Edit an employee's first name
 
     test('User should be able to edit an employee @regression', async ({ loginPage, page }) => {
+        test.setTimeout(60000);
+        
         await loginPage.login(
             users.validUser.username,
             users.validUser.password

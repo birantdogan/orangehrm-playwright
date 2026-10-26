@@ -4,11 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "playwright test --project=chromium --workers=1",
+    "test": "node scripts/run-tests.js",
     "test:headed": "playwright test --project=chromium --headed",
     "test:smoke": "playwright test --project=chromium --grep @smoke",
     "test:regression": "playwright test --project=chromium --grep @regression",
-    "test:report": "playwright show-report"
+    "test:report": "playwright show-report",
+    "report:pdf": "node scripts/generate-report.js"
   },
   "keywords": [],
   "author": "",
@@ -16,7 +17,9 @@
   "type": "commonjs",
   "devDependencies": {
     "@playwright/test": "^1.63.0",
-    "@types/node": "^26.6.4"
+    "@types/node": "^26.6.4",
+    "@types/pdfkit": "^0.17.7",
+    "pdfkit": "^0.20.2"
   },
   "dependencies": {
     "dotenv": "^18.0.6"

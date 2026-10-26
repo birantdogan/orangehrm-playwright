@@ -7,3 +7,6 @@ node_modules/
 /playwright/.cache/
 /playwright/.auth/
 .env
+# Generated PDF test reports
+test-execution-report.pdf
+test-execution-report-simulation.pdf
