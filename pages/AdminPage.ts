@@ -146,17 +146,22 @@ export class AdminPage {
         await this.page.getByText('Users', { exact: true }).click();
     }
     async deleteUser(username: string) {
+        await expect(this.page.locator('.oxd-table-loader')).toBeHidden();
+        await expect(
+            this.page.getByRole('heading', { name: 'System Users' })
+        ).toBeVisible();
         await expect(this.usernameInput).toBeVisible();
         await expect(this.usernameInput).toBeEnabled();
         await this.usernameInput.fill(username);
         await expect(this.usernameInput).toHaveValue(username);
+
         await this.searchButton.click();
 
         const userRow = this.userRows.filter({
             hasText: username,
         });
 
-        await expect(userRow).toBeVisible();
+        await expect(userRow).toBeVisible({ timeout: 15000 });
 
         await userRow.locator('button').filter({
             has: this.page.locator('[class*="trash"]'),

@@ -159,6 +159,7 @@ test.describe('Admin Tests', () => {
             }
         }
     });
+    
     test('Admin should not be able to create a user with duplicate username @regression', async ({ loginPage, page }) => {
         const adminPage = new AdminPage(page);
         const password = 'Test@12345';
