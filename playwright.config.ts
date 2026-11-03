@@ -13,6 +13,7 @@ import { defineConfig, devices } from '@playwright/test';
  */
 export default defineConfig({
   testDir: './tests',
+  testIgnore: process.env.FAILURE_DEMO ? [] : ['**/failure-demo.spec.ts'],
   timeout: 60000,
   expect: {
     timeout: 10000,

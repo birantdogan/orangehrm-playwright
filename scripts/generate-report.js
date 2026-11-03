@@ -360,7 +360,7 @@ for (const test of tests) {
     if (test.errors.length > 0) {
         for (const error of test.errors) {
             pdf.fillColor('red')
-                .text(`Error: ${error.message || 'Unknown error'}`);
+                .text(`Error: ${(error.message || 'Unknown error').replace(/\x1B\[[0-9;]*m/g, '')}`);
         }
     }
 
