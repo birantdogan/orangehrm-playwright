@@ -146,6 +146,8 @@ export class AdminPage {
         await this.page.getByText('Users', { exact: true }).click();
     }
     async deleteUser(username: string) {
+        await expect(this.usernameInput).toBeVisible();
+        await expect(this.usernameInput).toBeEnabled();
         await this.usernameInput.fill(username);
         await expect(this.usernameInput).toHaveValue(username);
         await this.searchButton.click();

@@ -2,7 +2,7 @@ const { spawnSync } = require('child_process');
 
 const testResult = spawnSync(
     'npx',
-    ['playwright', 'test', '--project=chromium', '--workers=1'],
+    ['playwright', 'test', '--project=chromium', '--workers=1', ...process.argv.slice(2)],
     {
         stdio: 'inherit',
         shell: process.platform === 'win32'

@@ -115,12 +115,14 @@ export class PIMPage {
     async deleteEmployee(employeeId: string) {
         const employeeRow = this.getEmployeeRowById(employeeId);
 
-        await employeeRow
+        const deleteButton = employeeRow
             .getByRole('button')
-            .filter({
-                has: this.page.locator('i.bi-trash'),
-            })
-            .click();
+            .filter({ has: this.page.locator('i.bi-trash') });
+
+        await expect(employeeRow).toHaveCount(1);
+        await expect(deleteButton).toBeVisible();
+
+        await deleteButton.click();
 
         await expect(
             this.deleteConfirmationDialog.getByText('Are you Sure?', {
@@ -130,7 +132,6 @@ export class PIMPage {
 
         await this.confirmDeleteButton.click();
 
-        // Verify employee is removed from the list
         await expect(employeeRow).toHaveCount(0);
     }
     async getFirstEmployeeId() {
